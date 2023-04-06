@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  database:
+    image: mariadb:latest
+    environment:
+      MARIADB_DATABASE: somedbname
+      MARIADB_ROOT_PASSWORD: secretpassword
+    labels:
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump -psecretpassword --all-databases > /tmp/dumps/dump.sql'
+    volumes:
+      - data:/tmp/dumps
+  
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      BACKUP_FILENAME: db.tar.gz
+      BACKUP_CRON_EXPRESSION: "0 2 * * *"
+    volumes:
+      - ./local:/archive
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - data:/backup/data:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  data:
