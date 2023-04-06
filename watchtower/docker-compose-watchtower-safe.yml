@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_CLEANUP: true # Removes old images after updating
+      WATCHTOWER_LABEL_ENABLE: true # only upgrade containers that have labels: - "com.centurylinklabs.watchtower.enable=true"
+      WATCHTOWER_INCLUDE_RESTARTING: true # Will also include restarting containers.
+      WATCHTOWER_POLL_INTERVAL: 86400 # Every 24 hours
+      TZ: Europe/Athens
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
