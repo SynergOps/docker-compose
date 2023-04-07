@@ -7,21 +7,41 @@ services:
       MARIADB_DATABASE: somedbname
       MARIADB_ROOT_PASSWORD: secretpassword
     labels:
-      - docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump -psecretpassword --all-databases > /tmp/dumps/dump.sql'
+      # This means the container will be stopped during backup to ensure
+      # backup integrity. You can omit this label if stopping during backup
+      # not required.
+      # - docker-volume-backup.stop-during-backup=true # uncomment if you need to stop the DB before the backup
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump --all-databases --single-transaction --quick --lock-tables=false -p secretpassword > /tmp/dumps/full-backup-$(date +'%Y%m%d_%H%M%S').sql'
     volumes:
       - data:/tmp/dumps
-  
+
   backup:
     image: offen/docker-volume-backup:v2
     environment:
-      BACKUP_FILENAME: db.tar.gz
-      BACKUP_CRON_EXPRESSION: "0 2 * * *"
+      #BACKUP_CRON_EXPRESSION: "0 2 * * *" # Backups run on the given cron schedule in `busybox` flavor. If no value is set, 
+      #`@daily` will be used. If you do not want the cron to ever run, use `0 0 5 31 2 ?`.
+      BACKUP_FILENAME: backup-%Y-%m-%dT%H-%M-%S.tar.gz
+        # The name of the backup file including the `.tar.gz` extension.
+        # Format verbs will be replaced as in `strftime`. Omitting them
+        # will result in the same filename for every backup run, which means previous
+        # versions will be overwritten on subsequent runs. The default results
+        # in filenames like `backup-2021-08-29T04-00-00.tar.gz`.
+      BACKUP_ARCHIVE: /archive
+      BACKUP_RETENTION_DAYS: 7
+      BACKUP_PRUNING_LEEWAY: 1m
+      BACKUP_PRUNING_PREFIX: "backup-"
+      EXEC_FORWARD_OUTPUT: true
+      LOCK_TIMEOUT: 60m
     volumes:
+      - data:/backup/data:ro # The volume of the "databese" service that we want to backup
       - ./local:/archive
+        # If you mount a local directory or volume to `/archive` a local
+        # copy of the backup will be stored there. You can override the
+        # location inside of the container by setting `BACKUP_ARCHIVE`.
+        # You can omit this if you do not want to keep local backups.
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - data:/backup/data:ro
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock # This is needed to be able to stop/start container
 
 volumes:
   data:
