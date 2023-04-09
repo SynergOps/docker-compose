@@ -1,0 +1,81 @@
+version: '3.3'
+# A wordpress with Mariadb and backup service. We use traefik as a proxy  
+services:
+  db:
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+      - db_backup_folder:/tmp/dumps # we use this volume as a mysqldump folder
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    labels:
+      - traefik.enable=false
+      # This means the container will be stopped during backup to ensure backup integrity.
+      #- docker-volume-backup.stop-during-backup=true
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump --all-databases --single-transaction --quick --lock-tables=false -uroot -pwordpress > /tmp/dumps/full-backup-$(date +'%Y%m%d_%H%M%S').sql'
+      - com.centurylinklabs.watchtower.enable=true # enable watchtower to check for available mariadb upgrades and apply them 
+    networks:
+      - internal # just an isolated network fo DB
+    environment:
+      MARIADB_ROOT_PASSWORD: wordpress
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_AUTO_UPGRADE: true
+
+  wordpress:
+    image: wordpress:latest
+    volumes:
+      - wp_data:/var/www/html
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 80
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - traefikportainer_default # The name of the Traefik Network so that Traefik can automatically recognize the provided service
+      - internal # To connect to the DB network
+    labels:
+      - traefik.http.routers.wordpress.rule=Host(`example.com`) # the public domain of the wordpress site
+      - traefik.http.routers.wordpress.tls=true
+      #- traefik.http.routers.wordpress.tls.certresolver=lets-encrypt # uncomment for production
+      - traefik.port=80
+      - com.centurylinklabs.watchtower.enable=true # enable watchtower to check for available wordpress upgrades and apply them
+  backup:
+    image: offen/docker-volume-backup
+    environment:
+      BACKUP_FILENAME: backup-%Y-%m-%dT%H-%M-%S.tar.gz
+      BACKUP_ARCHIVE: /archive
+      # Backups older than 7 days will be pruned.
+      # If this value is not given, backup will be kept forever.
+      BACKUP_RETENTION_DAYS: 7
+      # If given, backups are encrypted using GPG
+      # GPG_PASSPHRASE: "<SOME_KEY>"
+      BACKUP_PRUNING_LEEWAY: 1m
+      BACKUP_PRUNING_PREFIX: backup-
+      EXEC_FORWARD_OUTPUT: true
+      LOCK_TIMEOUT: 1m
+    volumes:
+      - db_backup_folder:/backup/database:ro # The volume of the "mysqldump folder" that contains the mysql dump we want to backup
+      - wp_data:/backup/html
+        # If you mount a local directory (/home/username/MyWordpressBackups) or volume to `/archive` a local
+        # copy of the backup will be stored there. You can override the
+        # location inside of the container by setting `BACKUP_ARCHIVE`.
+        # You can omit this if you do not want to keep local backups.
+      - /home/username/MyWordpressBackups:/archive
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock # This is needed to be able to stop/start container 
+    labels:
+      - com.centurylinklabs.watchtower.enable=true # enable watchtower to check for available mariadb upgrades and apply them
+volumes:
+  db_data:
+  db_backup_folder:
+  wp_data:
+networks:
+  traefikportainer_default:
+    external: true
+  internal:
+    external: false
