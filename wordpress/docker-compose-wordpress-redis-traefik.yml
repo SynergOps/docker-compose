@@ -11,7 +11,7 @@ services:
 
   wordpress:
     build:
-      # call the Dockerfile
+      # call the Dockerfile in ./wordpress
       context: ./Dockerfile
     restart: always
     logging:
