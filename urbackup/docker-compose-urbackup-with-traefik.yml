@@ -1,0 +1,48 @@
+version: '3.3'
+
+networks:
+  # enable connection with Traefik
+  traefik:
+    name: traefik_default
+    external: true
+
+services:
+  urbackup-server:
+    image: uroni/urbackup-server:latest
+    container_name: urbackup-server
+    restart: unless-stopped
+    environment:
+      - PUID=1000 # Enter the UID of the user who should own the files here
+      - PGID=100 # Enter the GID of the user who should own the files here
+      - TZ=Europe/Athens # Enter your timezone
+      - /etc/localtime:/etc/localtime:ro
+    volumes:
+      - 'path/to/local/backups:/backups'
+      - 'path/to/local/database:/var/urbackup'
+    ports:
+      - 55413
+      - 55414
+      - 55415
+      - 35623/udp
+    logging:
+      options:
+        max-size: 1g
+    networks:
+      - traefik
+    labels:
+      # The labels are usefull for Traefik only
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      # Get the routes from http
+      - "traefik.http.routers.urbackup.rule=Host(`sub.example.com`)"
+      - "traefik.http.routers.urbackup.entrypoints=web"
+      # Redirect these routes to https
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.urbackup.middlewares=redirect-to-https@docker"
+      # Get the routes from https
+      - "traefik.http.routers.urbackup-secured.rule=Host(`sub.example.com`)"
+      - "traefik.http.routers.urbackup-secured.entrypoints=websecure"
+      # Apply autentificiation with http challenge
+      - "traefik.http.routers.urbackup-secured.tls=true"
+      - "traefik.http.routers.urbackup-secured.tls.certresolver=leresolver"
+      - "traefik.http.services.urbackup.loadbalancer.server.port=55414"
