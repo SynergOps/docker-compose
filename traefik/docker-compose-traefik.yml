@@ -17,7 +17,8 @@ services:
     command:
       # Only for development environment
       - "--log.level=DEBUG"
-      - "--api.insecure=true"
+      #- "--api.dashboard"
+      #- "--api.insecure=true" # Don't do that in production
       # Get Docker as the provider
       - "--providers.docker=true"
       # Avoid that all containers are exposed
