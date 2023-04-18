@@ -15,8 +15,8 @@ services:
       - PUID=1000 # Enter the UID of the user who should own the files here
       - PGID=100 # Enter the GID of the user who should own the files here
       - TZ=Europe/Athens # Enter your timezone
-      - /etc/localtime:/etc/localtime:ro
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - 'path/to/local/backups:/backups'
       - 'path/to/local/database:/var/urbackup'
     ports:
