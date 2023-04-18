@@ -45,3 +45,4 @@ services:
       - "./letsencrypt:/letsencrypt"
       # Connect to Doker socket
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /etc/localtime:/etc/localtime:ro

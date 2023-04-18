@@ -16,6 +16,7 @@ services:
     command: hbbs -r rustdesk.example.com:21117 -k _ # The -k _ forces the server to accept connections only from clients that have the pub key
     volumes:
       - ./data:/root
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - rustdesk-net
     depends_on:
@@ -31,6 +32,7 @@ services:
     command: hbbr -k _
     volumes:
       - ./data:/root
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - rustdesk-net
     restart: unless-stopped

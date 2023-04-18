@@ -14,6 +14,7 @@ services:
       - docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump --all-databases --single-transaction --quick --lock-tables=false -p secretpassword > /tmp/dumps/full-backup-$(date +'%Y%m%d_%H%M%S').sql'
     volumes:
       - data:/tmp/dumps
+      - /etc/localtime:/etc/localtime:ro
 
   backup:
     image: offen/docker-volume-backup:v2

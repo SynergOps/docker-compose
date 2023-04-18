@@ -6,6 +6,7 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
     environment:
       WATCHTOWER_CLEANUP: true # Removes old images after updating
       WATCHTOWER_LABEL_ENABLE: true # only upgrade containers that have labels: - "com.centurylinklabs.watchtower.enable=true"
