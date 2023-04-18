@@ -20,6 +20,7 @@ services:
       # Uncomment this if IPv6 is not enabled on your host
       DISABLE_IPV6: 'true'
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - nginxdata:/data
         #- ./letsencrypt:/etc/letsencrypt
     depends_on:
@@ -34,6 +35,7 @@ services:
       MYSQL_USER: 'npm'
       MYSQL_PASSWORD: 'npm'
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - nginxmysql:/var/lib/mysql
 volumes:
    nginxdata:
