@@ -4,6 +4,7 @@ services:
    db:
      image: mysql:5.7
      volumes:
+       - /etc/localtime:/etc/localtime:ro
        - db_data:/var/lib/mysql
      restart: always
      environment:
@@ -23,9 +24,13 @@ services:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: wordpress
+     volumes:
+       - /etc/localtime:/etc/localtime:ro
+       - wpdata:/var/www/html
 
 volumes:
     db_data:
+    wpdata:
 networks:
   nginxproxy_default:
     external: true
