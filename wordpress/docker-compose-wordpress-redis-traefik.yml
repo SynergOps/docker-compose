@@ -8,7 +8,6 @@ networks:
   backend:
 
 services:
-
   wordpress:
     build:
       # call the Dockerfile in ./wordpress
@@ -27,6 +26,7 @@ services:
     volumes:
       # save the content of WordPress an enable local modifications
       - ./wordpress/data:/var/www/html
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - traefik
       - backend
@@ -38,17 +38,17 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik"
       # Get the routes from http
-      - "traefik.http.routers.wordpresscp.rule=Host(`mysite.com`)"
-      - "traefik.http.routers.wordpresscp.entrypoints=web"
+      - "traefik.http.routers.wordpress.rule=Host(`mysite.com`)"
+      - "traefik.http.routers.wordpress.entrypoints=web"
       # Redirect these routes to https
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.wordpresscp.middlewares=redirect-to-https@docker"
+      - "traefik.http.routers.wordpress.middlewares=redirect-to-https@docker"
       # Get the routes from https
-      - "traefik.http.routers.wordpresscp-secured.rule=Host(`mysite.com`)"
-      - "traefik.http.routers.wordpresscp-secured.entrypoints=web-secure"
+      - "traefik.http.routers.wordpress-secured.rule=Host(`mysite.com`)"
+      - "traefik.http.routers.wordpress-secured.entrypoints=web-secure"
       # Apply autentificiation with http challenge
-      - "traefik.http.routers.wordpresscp-secured.tls=true"
-      - "traefik.http.routers.wordpresscp-secured.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.wordpress-secured.tls=true"
+      - "traefik.http.routers.wordpress-secured.tls.certresolver=myhttpchallenge"
 
   db:
     # this is the database used by Wordpress
@@ -67,6 +67,7 @@ services:
     volumes:
       # Persist the database on disk
       - ./db:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - backend
 
@@ -80,6 +81,8 @@ services:
         max-file: "3"
     ports:
       - "6379:6379"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - backend
     # launch Redis in cache mode with :
