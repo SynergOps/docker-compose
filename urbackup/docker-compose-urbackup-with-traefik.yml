@@ -7,7 +7,7 @@ networks:
     external: true
 
 services:
-  urbackup-server:
+  urbackup:
     image: uroni/urbackup-server:latest
     container_name: urbackup-server
     restart: unless-stopped
