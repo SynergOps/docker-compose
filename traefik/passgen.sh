@@ -13,10 +13,12 @@ which htpasswd >/dev/null || ($SUDO apt update && $SUDO apt install apache2-util
 # Generate strings
 echo ""
 echo "------- Your string for .env --------"
+echo ""
 string=$(htpasswd -nbB $USER $PW)
 echo $string
 echo ""
 echo "------- Your string for docker-compose.yml --------"
 # Escape string
+echo ""
 echo "$string" | sed -e 's/\$/\$\$/g'
 echo ""
