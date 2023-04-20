@@ -34,7 +34,7 @@ watch curl -H Host:whoami.docker.localhost <http://127.0.0.1>
 ```
 Go back to your browser (http://localhost:8080/api/rawdata) and see that Traefik has automatically detected the new instance of the container.
 
-# Traefi with Portainer
+# Traefik with Portainer
 
 This setup comes up with the [Traefik](https://github.com/containous/traefik) v2.2.8 reverse proxy to access the Portainer instance via a virtual host, has support for SSL certificates using Let's Encrypt and automatic redirection from http to https.
 
