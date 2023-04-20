@@ -25,10 +25,18 @@ providers:
     filename: /configurations/dynamic.yml
 
 certificatesResolvers:
-  letsencrypt:
+  #staging:
+  #   acme:
+  #     email: contact@example
+  #     storage: /letsencrypt/acme.json
+  #     caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  #     httpChallenge:
+  #       entryPoint: web
+
+  production:
     acme:
-      email: example.com
+      email: contact@example
       storage: /letsencrypt/acme.json
-      keyType: EC384
+      caServer: "https://acme-v02.api.letsencrypt.org/directory"
       httpChallenge:
         entryPoint: web
