@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 9000
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_portainer_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.rule=Host(`docker.nefos.ga`)" # Add your own FQDN subdomain
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+        #- "traefik.http.routers.portainer.service=frontend"
+        #- "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+    networks:
+      - proxy
+volumes:
+  traefik_portainer_data:
+    external: true
+networks:
+  proxy:
+    name: traefik-net
+    external: true
