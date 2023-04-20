@@ -2,7 +2,8 @@ version: "3.3"
 # This is a docker compose file that is self contained. Meaning no extra configuration files are needed. For production envs, 
 # I recomend using the docker-compose-pro.yml and configure the files in traefik-
 networks:
-  traefik:
+  proxy:
+    name: traefik-net
     external: true
 
 services:
@@ -63,7 +64,7 @@ services:
       - "443:443"
       - "8080:8080"
     networks:
-      - "traefik"
+      - "proxy"
     volumes:
       # Store certificates in ./letsencrypt/acme.json
       - "./letsencrypt:/letsencrypt"
