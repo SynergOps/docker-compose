@@ -1,0 +1,72 @@
+version: "3.3"
+# This is a docker compose file that is self contained. Meaning no extra configuration files are needed. For production envs, 
+# I recomend using the docker-compose-pro.yml and configure the files in traefik-
+networks:
+  traefik:
+    external: true
+
+services:
+  traefik:
+    image: "traefik"
+    container_name: "traefik"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command:
+      # Only for development environment
+      - "--log.level=DEBUG"
+      #- "--api.dashboard" # Don't do that in production use it with BasicAuth as configured below
+      #- "--api.insecure=true" # Don't do that in production
+      # Get Docker as the provider
+      - "--providers.docker=true"
+      # Avoid that all containers are exposed
+      - "--providers.docker.exposedbydefault=false"
+      # Settle the ports for the entry points
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # redirect all HTTP traffic to HTTPS
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Settle the autentification method to http challenge
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge=true"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint=web"
+      # Uncomment this to get a fake certificate when testing
+      #- "--certificatesresolvers.myhttpchallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # Settle letsencrypt as the certificate provider
+      - "--certificatesresolvers.myhttpchallenge.acme.email=me@mail.com"
+      - "--certificatesresolvers.myhttpchallenge.acme.storage=/letsencrypt/acme.json"
+      - "--api.dashboard" # Enable dachboard but with authentication configured below in labels
+    labels:
+      - "traefik.enable=true"
+        #- "traefik.http.services.traefik.loadbalancer.server.port=888" # required by swarm but not used.
+        # Configure the exposure of the Traefik dashboard on the traefik.example.com domain name, 
+        # using the websecure entrypoint with the leresolver
+      - "traefik.http.routers.traefik.rule=Host(`traefik.example.com`)" # expose our container using the previously declared websecure entrypoint.
+      - "traefik.http.routers.traefik.entrypoints=websecure" # which certificate resolver we wanna use
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=leresolver" # Indicate to Traefik which service should be exposed
+      - "traefik.http.routers.traefik.service=api@internal" # Create a middleware named traefik-auth, and define the basic auth users. 
+      - "traefik.http.routers.traefik.middlewares=traefik-auth" # The users are a comma separated list of the follow format: username:password
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:pass-generated-by-htpasswd"
+      # To generate a password you can use htpasswd (here with sed to escape the $ present in the hash):
+      # echo $(htpasswd -nb admin admin) | sed -e s/\\$/\\$\\$/g
+
+      #- "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      #- "traefik.http.routers.http-catchall.entrypoints=web"
+
+      # Create a middleware to redirect all to https
+      - "traefik.http.routers.traefik.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    networks:
+      - "traefik"
+    volumes:
+      # Store certificates in ./letsencrypt/acme.json
+      - "./letsencrypt:/letsencrypt"
+      # Connect to Doker socket
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /etc/localtime:/etc/localtime:ro
