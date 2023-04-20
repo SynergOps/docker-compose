@@ -13,6 +13,11 @@ services:
         max-size: "10m"
         max-file: "3"
     restart: unless-stopped
+    healthcheck:
+      test: grep -qr "traefik" /proc/*/status || exit
+      interval: 1m
+      timeout: 30s
+      retries: 3
     security_opt:
       - no-new-privileges:true
     networks:
