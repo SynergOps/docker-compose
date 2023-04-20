@@ -7,3 +7,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     labels:
       - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+    networks:
+      - proxy
+networks:
+  proxy:
+    name: traefik-net
+    external: true
