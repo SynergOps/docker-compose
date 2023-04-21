@@ -1,20 +1,67 @@
 # Dynamic configuration
 http:
+ #region routers 
+ # Example
+ # routers:
+ #    pihole:
+ #     entryPoints:
+ #       - "https"
+ #     rule: "Host(`pihole.local.example.com`)"
+ #     middlewares:
+ #      - default-headers
+ #      - addprefix-pihole
+ #      - https-redirectscheme
+ #      tls: {}
+ #      service: pihole
+
+#endregion
+#region services
+# Example
+#  services:
+#    pihole:
+#      loadBalancer:
+#        servers:
+#          - url: "http://192.168.0.101:80"
+#        passHostHeader: true
+#endregion
   middlewares:
-    secureHeaders:
+    https-redirectscheme:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    default-headers:
       headers:
         sslRedirect: true
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
         forceSTSHeader: true
         stsIncludeSubdomains: true
         stsPreload: true
-        stsSeconds: 31536000
-
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
     user-auth:
       basicAuth:
         users:
         # To generate a password you can use htpasswd:
         # htpasswd -nb admin admin
           - "PASSWORD"
+    
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+
+    secured:
+      chain:
+        middlewares:
+        - default-whitelist
+        - default-headers
 tls:
   options:
     default:
