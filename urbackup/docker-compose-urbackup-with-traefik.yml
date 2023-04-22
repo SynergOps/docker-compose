@@ -35,14 +35,14 @@ services:
       - "traefik.docker.network=proxy"
       # Get the routes from http
       - "traefik.http.routers.urbackup.rule=Host(`sub.example.com`)"
-      - "traefik.http.routers.urbackup.entrypoints=web"
+      - "traefik.http.routers.urbackup.entrypoints=http"
       # Redirect these routes to https
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.routers.urbackup.middlewares=redirect-to-https@docker"
       # Get the routes from https
       - "traefik.http.routers.urbackup-secured.rule=Host(`sub.example.com`)"
-      - "traefik.http.routers.urbackup-secured.entrypoints=websecure"
+      - "traefik.http.routers.urbackup-secured.entrypoints=https"
       # Apply autentificiation with http challenge
       - "traefik.http.routers.urbackup-secured.tls=true"
-      - "traefik.http.routers.urbackup-secured.tls.certresolver=leresolver"
+      - "traefik.http.routers.urbackup-secured.tls.certresolver=letsencrypt"
       - "traefik.http.services.urbackup.loadbalancer.server.port=55414"
