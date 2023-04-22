@@ -18,7 +18,7 @@ providers:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
-    filename: /dynamic.yml
+    filename: /config.yml
 certificatesResolvers:
   #You can use multiple certificate resolvers. you just need to store them on diffrent file
   # then you can call the in a docker-compose.yml with:
@@ -35,7 +35,7 @@ certificatesResolvers:
   cloudflare:
     acme:
       email: email@example.com
-      storage: /certificates/acme.json
+      storage: /certificates/acmecflare.json
       dnsChallenge:
         provider: cloudflare
         #disablePropagationCheck: true # uncomment this if you have issues pulling certificates through cloudflare,
