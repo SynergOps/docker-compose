@@ -2,8 +2,8 @@ version: '3.3'
 
 networks:
   # enable connection with Traefik
-  traefik:
-    name: traefik_default
+  proxy:
+    name: traefik-net
     external: true
 
 services:
@@ -28,11 +28,11 @@ services:
       options:
         max-size: 1g
     networks:
-      - traefik
+      - proxy
     labels:
       # The labels are usefull for Traefik only
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=proxy"
       # Get the routes from http
       - "traefik.http.routers.urbackup.rule=Host(`sub.example.com`)"
       - "traefik.http.routers.urbackup.entrypoints=web"
