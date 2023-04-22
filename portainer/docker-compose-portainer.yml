@@ -1,5 +1,8 @@
 version: "3.9"
-
+networks:
+  proxy:
+    name: traefik-net
+    external: true
 services:
   portainer:
     image: portainer/portainer-ce:latest
@@ -20,18 +23,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.routers.portainer.rule=Host(`docker.nefos.ga`)" # Add your own FQDN subdomain
+      - "traefik.http.routers.portainer.entrypoints=https"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.example.com`)" # Add your own FQDN subdomain
       - "traefik.http.routers.portainer.service=portainer"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-        #- "traefik.http.routers.portainer.service=frontend"
-        #- "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.portainer.tls.certresolver=cloudflare"
     networks:
       - proxy
 volumes:
-  traefik_portainer_data:
-    external: true
-networks:
-  proxy:
-    name: traefik-net
-    external: true
+  portainer_data:
