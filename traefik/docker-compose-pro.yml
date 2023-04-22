@@ -3,7 +3,6 @@ networks:
   proxy:
     name: traefik-net # dont forget to create (docker network create traefik-net) it before running the stack
     external: true
-
 services:
   traefik:
     image: traefik:latest
@@ -29,19 +28,28 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik-data/traefik.yml:/traefik.yml:ro
-      # Store certificates in ./letsencrypt/acme.json  
-      - ./traefik-data/letsencrypt:/letsencrypt # This is the way. Else you shall get stupid errors like 
-      # "unable to get ACME account: permissions 755 for ./acme.json are too open, please use 600"
-      - ./traefik-data/configurations:/configurations
+      # Store cloudflare certificates in ./certificates/acmecflare.json
+      # Store letsencrypt certificates in ./certificates/acmelencrypt.json  
+      - ./traefik-data/certificates:/certificates # This is the way. Else you shall get stupid errors like 
+      # "unable to get ACME account: permissions 755 for ./acmexxxx.json are too open, please use 600"
+      - ./traefik-data/config.yml:/config.yml:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.traefik-secure.entrypoints=websecure" # expose our container using the configured websecure entrypoint.
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.example.com`)"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.traefik-secure.rule=Host(`traefik.example.com`)"
-      - "traefik.http.routers.traefik-secure.middlewares=user-auth@file" # user-auth is configured in dynamic.yml
+      - "traefik.http.routers.traefik-secure.middlewares=user-auth@file" # user-auth is configured in config.yml
+      - "traefik.http.routers.traefik-secure.tls=true"
+      # This is where the magic with wild card certificate happens. After configuring your
+      # DNS with a "A RECORD for *.example.com" you can use one certificate for all subdomains
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=example.com"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.example.com"
+      # Redirect trafik to internal api
       - "traefik.http.routers.traefik-secure.service=api@internal"
 
-# If you need Portainer uncomment the following
+# If you need Portainer in the same docker compose uncomment the following
 #  portainer:
 #    image: portainer/portainer-ce:latest
 #    container_name: portainer
