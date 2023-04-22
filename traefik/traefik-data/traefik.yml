@@ -1,42 +1,48 @@
 api:
   dashboard: true
-
+  debug: true
 entryPoints:
-  web:
-    address: :80
+  http:
+    address: ":80"
     http:
       redirections:
         entryPoint:
-          to: websecure
-
-  websecure:
-    address: :443
-    http:
-      middlewares:
-        - secureHeaders@file
-      tls:
-        certResolver: letsencrypt
-
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+serversTransport:
+  insecureSkipVerify: true
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
-    filename: /configurations/dynamic.yml
-
+    filename: /dynamic.yml
 certificatesResolvers:
-  #staging:
-  #   acme:
-  #     email: contact@example
-  #     storage: /letsencrypt/acme.json
-  #     caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
-  #     httpChallenge:
-  #       entryPoint: web
-
-  production:
+  #You can use multiple certificate resolvers. you just need to store them on diffrent file
+  # then you can call the in a docker-compose.yml with:
+  # - "traefik.http.routers.myservicename.tls.certresolver=letsencrypt (or cloudflare)"
+  letsencrypt:
     acme:
-      email: contact@example
-      storage: /letsencrypt/acme.json
+      email: email@example.com
+      storage: /certificates/acmelencrypt.json
       caServer: "https://acme-v02.api.letsencrypt.org/directory"
+      #caServer: "https://acme-staging-v02.api.letsencrypt.org/directory" # use staging on development
+      #keyType: EC384
       httpChallenge:
-        entryPoint: web
+        entryPoint: http
+  cloudflare:
+    acme:
+      email: email@example.com
+      storage: /certificates/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        #disablePropagationCheck: true # uncomment this if you have issues pulling certificates through cloudflare,
+        # By setting this flag to true disables the need to wait for the propagation of the TXT record to
+        # all authoritative name servers.
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+      #httpChallenge:
+      #  entryPoint: http
