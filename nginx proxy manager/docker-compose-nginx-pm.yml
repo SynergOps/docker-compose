@@ -4,14 +4,6 @@ networks:
     name: nginx-net
     external: true
   backend-db:
-
-
-networks:
-   proxy:  
-      name: nginx-net
-      external: true
-   backend-db:
-
 services:
   app:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -44,13 +36,10 @@ services:
       DISABLE_IPV6: 'true'
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - nginxdata:/data
-        #- ./letsencrypt:/etc/letsencrypt
+      - nginxdata:/data #- ./letsencrypt:/etc/letsencrypt
     depends_on:
       - db
-    networks:
-        - proxy
-        - backend-db
+
   db:
     image: 'jc21/mariadb-aria:latest'
     restart: unless-stopped
@@ -64,9 +53,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - nginxmysql:/var/lib/mysql
-    networks:
-        - backend-db
 
 volumes:
-   nginxdata:
-   nginxmysql:
+  nginxdata:
+  nginxmysql:
