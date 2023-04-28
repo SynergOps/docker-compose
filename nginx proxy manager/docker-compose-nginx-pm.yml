@@ -1,4 +1,10 @@
 version: '3.8'
+networks:
+  proxy:
+    name: nginx-net
+    external: true
+  backend-db:
+
 
 networks:
    proxy:  
@@ -17,8 +23,18 @@ services:
       - '81:81' # Admin Web Port
       # Add any other Stream port you want to expose
       - '21:21' # FTP
+    healthcheck:
+      test: [ "CMD", "/bin/check-health" ]
+      interval: 10s
+      timeout: 3s
+    networks:
+      - proxy
+      - backend-db
     environment:
       # Mysql/Maria connection parameters:
+      PUID: 1000
+      PGID: 1000
+      X_FRAME_OPTIONS: "sameorigin"
       DB_MYSQL_HOST: "db"
       DB_MYSQL_PORT: 3306
       DB_MYSQL_USER: "npm"
@@ -38,6 +54,8 @@ services:
   db:
     image: 'jc21/mariadb-aria:latest'
     restart: unless-stopped
+    networks:
+      - backend-db
     environment:
       MYSQL_ROOT_PASSWORD: 'npm'
       MYSQL_DATABASE: 'npm'
