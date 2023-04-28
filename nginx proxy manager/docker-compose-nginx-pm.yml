@@ -1,4 +1,11 @@
 version: '3.8'
+
+networks:
+   proxy:  
+      name: nginx-net
+      external: true
+   backend-db:
+
 services:
   app:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -25,7 +32,9 @@ services:
         #- ./letsencrypt:/etc/letsencrypt
     depends_on:
       - db
-
+    networks:
+        - proxy
+        - backend-db
   db:
     image: 'jc21/mariadb-aria:latest'
     restart: unless-stopped
@@ -37,6 +46,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - nginxmysql:/var/lib/mysql
+    networks:
+        - backend-db
+
 volumes:
    nginxdata:
    nginxmysql:

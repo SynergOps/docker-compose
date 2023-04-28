@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <script language="javascript" type="text/javascript">
+        var ajax = new XMLHttpRequest();
+
+        function pingSite() {
+            ajax.onreadystatechange = stateChanged;
+            ajax.open('GET', document.getElementById('siteToCheck').value, true);
+            ajax.send(null);
+        }
+
+        function stateChanged() {
+            if (ajax.readyState == 4) {
+                if (ajax.status == 200) {
+                    document.getElementById('statusLabel').innerHTML = "Success!";
+                }
+                else {
+                    document.getElementById('statusLabel').innerHTML = "Failure!";
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    Site To Check:<br />
+    <input type="text" id="siteToCheck" />
+    <input type="button" onclick="pingSite()" value="Check Site" />
+
+    <p>
+        <span id="statusLabel"></span>
+    </p>
+</body>
+
+</html>
