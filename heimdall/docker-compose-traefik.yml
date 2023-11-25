@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  heimdall:
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=europe/athens
+    volumes:
+      - ./heimdall:/config
+    labels:
+      - traefik.http.routers.heimdall.rule=Host(`heimdall.example.com`)
+      - traefik.http.routers.heimdall.tls=true
+      - traefik.http.routers.heimdall.tls.certresolver=lets-encrypt
+      - traefik.port=80
+    networks:
+      - internal
+      - web
+    restart: unless-stopped
+    image: linuxserver/heimdall
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
