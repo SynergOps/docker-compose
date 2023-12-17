@@ -1,0 +1,18 @@
+version: "2.1"
+services:
+  duplicati:
+    image: ghcr.io/linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/Athens
+      # (optional) - CLI_ARGS=
+    volumes:
+      - ./appdata/config:/config
+      - ./backups:/backups
+      # The following will mount your home dir inside container
+      - ~/:/source
+    ports:
+      - 8200:8200
+    restart: unless-stopped
