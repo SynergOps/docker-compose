@@ -1,0 +1,10 @@
+[Unit]
+Description=Online DB Backup Script for MariaDB - MySQL - PostgreSQL
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+Unit=db-in-volume-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Online DB Backup Script for MariaDB - MySQL - PostgreSQL
+Wants=db-in-volume-backup.timer
+
+[Service]
+Type=simple
+ExecStart=sh /opt/db-in-volume-backup.sh
+User=ubuntu
+
+[Install]
+WantedBy=default.target
