@@ -2,7 +2,14 @@
 
 A very small Docker image (~154KB) to run any static website, based on the [BusyBox httpd](https://www.busybox.net/) static file server.
 
-## Usage
+## Quick Start
+
+If you just want to use the default page that comes with the image, run:
+```
+docker compose up -d
+```
+
+## Build your own
 
 Put your static html files in the `html` folder
 

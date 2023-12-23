@@ -1,0 +1,14 @@
+version: "3"
+services:
+  mini-static-server:
+    image: synergops/mini-static-server
+    container_name: mini-static-site
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 80:80
