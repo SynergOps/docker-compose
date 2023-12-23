@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  coming-soon:
+    ports:
+      - '80:80'
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock:ro'
+    restart: always
+    logging:
+      options:
+        max-size: 0.5g
+    environment:
+      - 'TITLE=Σύντομα κοντά σας'
+      - 'SUBLINE=Εργαζόμαστε σκληρά για να ολοκληρώσουμε την ανάπτυξη αυτού του ιστότοπου. Στόχος μας είναι ο <strong>Νοέμβριος του 2022</strong>!'
+    image: roest/docker-coming-soon-generator
+    container_name: comming-soon
