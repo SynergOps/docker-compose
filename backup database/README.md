@@ -1,3 +1,7 @@
+# Database backup
+
+This script and its service, automates the backing up of databases that reside in docker volumes. The script uses the builtin functionallity of each database server to initiate a database backup.
+
 ## What to change:
 
 Open `db-in-volume-backup.sh` and adjust the following:
