@@ -36,7 +36,7 @@ Usage:
 Download the `vackup` file in this repository to your local machine in your shell path and make it executable.
 
 ```shell
-sudo curl -sSL https://raw.githubusercontent.com/synergops/docker-compose/main/vackup-all -o /usr/local/bin/vackup && sudo chmod +x /usr/local/bin/vackup
+sudo curl -sSL https://raw.githubusercontent.com/SynergOps/docker-compose/main/vackup%20all/vackup -o /usr/local/bin/vackup && sudo chmod +x /usr/local/bin/vackup
 ```
 
 ## Error conditions
