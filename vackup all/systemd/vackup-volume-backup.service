@@ -1,0 +1,11 @@
+[Unit]
+Description=Vackup All - backup all volumes
+Wants=vackup-volume-backup.timer
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/vallbackup
+User=ubuntu
+
+[Install]
+WantedBy=default.target

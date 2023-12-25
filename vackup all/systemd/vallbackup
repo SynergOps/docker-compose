@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Note: Before running this script, install the Vackup command,
+# installation information can be found at the link below:
+# https://github.com/synergops/docker-compose/vackup-all
+
+clear
+
+## Variables
+volumes=$(docker volume ls -q)
+dts=$(date +%d%m%y_%H%M%S)
+
+## Where should the backups be saved. Define pathroot= 
+pathroot=~/vallbackups
+pathbkp=$pathroot/$dts
+
+## Remove subfolders from the backup directory that are more than 7 days old
+find $pathroot -mindepth 1 -maxdepth 1 -type d -mtime +7 -exec rm -r {} \;
+
+## Create and enter the backup directory
+mkdir $pathbkp && cd $pathbkp
+
+## Backing up volumes and creating backup logs
+for volume in $volumes
+do
+    /usr/local/bin/vackup export $volume $volume.tar.gz | tee log_$volume.txt
+done

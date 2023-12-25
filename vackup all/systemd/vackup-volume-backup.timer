@@ -1,0 +1,10 @@
+[Unit]
+Description=Vackup All - backup all volumes
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+Unit=vackup-volume-backup.service
+
+[Install]
+WantedBy=timers.target
