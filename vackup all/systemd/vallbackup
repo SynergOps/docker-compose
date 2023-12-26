@@ -11,7 +11,7 @@ volumes=$(docker volume ls -q)
 dts=$(date +%d%m%y_%H%M%S)
 
 ## Where should the backups be saved. Define pathroot= 
-pathroot=~/home/ubuntu/vallbackup
+pathroot=~/home/ubuntu/vallbackup-local
 pathbkp=$pathroot/$dts
 
 ## Remove subfolders from the backup directory that are more than 7 days old
