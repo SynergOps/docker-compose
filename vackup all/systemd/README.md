@@ -15,6 +15,13 @@ Download the `vackup` file in this repository to your local machine in your shel
 ```shell
 sudo curl -sSL https://raw.githubusercontent.com/SynergOps/docker-compose/main/vackup%20all/systemd/vallbackup -o /usr/local/bin/vallbackup && sudo chmod +x /usr/local/bin/vallbackup
 ```
+Create the default folder where the backups will be saved
+
+```
+mkdir /home/ubuntu/vallbackup-local
+```
+If you need to change the default folder, please edit `vallbackup` and change the value of `pathroot=` with your prefered path.
+Note: The folder should be an existing folder
 
 Lastly copy the `vackup-volume-backup.service` & `vackup-volume-backup.timer` in `/etc/systemd/system/` folder.
 
