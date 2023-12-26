@@ -6,7 +6,7 @@ Vackup all is a utility that uses the vackup by [BretFisher](https://github.com/
 
 Vallbackup: (contraction of "all volume backup")
 
-Easily backup all Docker volumes using the `vackup` utility.
+Easily schedule the backup of all Docker volumes using the `vackup` utility, once every day.
 
 ## Install
 
