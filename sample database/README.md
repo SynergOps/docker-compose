@@ -1,6 +1,6 @@
 ## Sample Database
 
-This is a simple MariaDB database server that you can import the provided sample data using the PhpMyadmin WebUI and paly around with the data.
+This is a simple MariaDB database server that you can import the provided sample data using the PhpMyadmin WebUI and play around with the data.
 
 This is ideal for anyone that needs :
 - a kickstart database for testing queries
