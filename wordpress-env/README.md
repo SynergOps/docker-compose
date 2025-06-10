@@ -2,7 +2,6 @@
 
 This is an **Docker Compose** based on Docker for WordPress:
 
-
  - community:  6.4, latest
 
 
