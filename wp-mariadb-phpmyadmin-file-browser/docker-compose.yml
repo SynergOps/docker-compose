@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  mariadb:
+    image: mariadb:11.4 # Latest stable LTS version
+    container_name: wordpress_mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: your_strong_root_password
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress_user
+      MARIADB_PASSWORD: your_strong_user_password
+    volumes:
+      - ./mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - wordpress_net
+
+  wordpress:
+    image: wordpress:6.5-php8.2-apache # Latest stable WordPress with a recent PHP version
+    container_name: wordpress_app
+    depends_on:
+      - mariadb
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: your_strong_user_password
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini # Custom PHP settings for file uploads. Please review the uploads.ini file.
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - wordpress_net
+
+  phpmyadmin:
+    image: phpmyadmin # Latest stable version
+    container_name: wordpress_phpmyadmin
+    depends_on:
+      - mariadb
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: your_strong_root_password
+      UPLOAD_LIMIT: 500M
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - wordpress_net
+
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: wordpress_filebrowser
+    volumes:
+      - ./wordpress:/srv
+      - ./filebrowser.db:/database/filebrowser.db
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    networks:
+      - wordpress_net
+
+networks:
+  wordpress_net:
+    driver: bridge
