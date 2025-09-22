@@ -1,0 +1,37 @@
+volumes:    # δημιουργούμε τα volumes για μόνιμη αποθήκευση
+   db_data:
+   wp_data:
+networks:   # δημιουργούμε το δίκτυο επικοινωνίας τοθ wordpress με την βάση δεδεομένων 
+   wordpress_mysql_network:
+
+services:    # Εδώ ξεκινούν οι ορισμοί των υπηρεσιών μας
+  db:      # Το όνομα της υπηρεσίας μας (και το hostname στο δίκτυο)
+    image: mysql    # Το image που θα χρησιμοποιηθεί
+    container_name: mysqldb   # Ένα όνομα για να το ξεχωρίζουμε
+    volumes:     # Ορίζουμε τα volumes για μόνιμη αποθήκευση
+      - db_data:/var/lib/mysql
+    restart: unless-stopped   # Να επανεκκινεί αυτόματα αν αποτύχει και να σταματήσει μόνο αν το κάνουμε εμείς
+    environment:    # Μεταβλητές περιβάλλοντος για τη ρύθμιση του MySQL
+      MYSQL_ROOT_PASSWORD: root_strong_password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: user_password
+    networks:   # συνδέουμε την βάση με το δίκτυο 
+      - wordpress_mysql_network
+  wordpress:
+    depends_on:    # Πολύ σημαντικό: λέει στο Compose να περιμένει να ξεκινήσει πρώτα η βάση
+      - db
+    image: wordpress     # Το image του WordPress
+    container_name: wordpress
+    volumes:
+      - wp_data:/var/www/html
+    ports:      # Αντιστοίχιση πόρτας: 81 (στον υπολογιστή μας) -> 80 (μέσα στο container)
+      - "81:80"
+    restart: unless-stopped
+    environment:      # Ρυθμίσεις για τη σύνδεση του WordPress με τη βάση
+      WORDPRESS_DB_HOST: db     # Χρησιμοποιούμε το όνομα της υπηρεσίας που τρέχει την βάση μας!
+      WORDPRESS_DB_USER: wordpress_user  # Χρησιμοποιούμε τα στοιχεία του χρήστη και της βάσης που φτιάξαμε 
+      WORDPRESS_DB_PASSWORD: user_password
+      WORDPRESS_DB_NAME: wordpress
+    networks:      # συνδέουμε το wordpress με το δίκτυο 
+      - wordpress_mysql_network
